@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from easy_viz_cnn.layers import ConvLayer, PoolLayer, FCLayer
+from easy_viz_cnn.layers import Conv2DLayer as ConvLayer, PoolLayer, FCLayer
 from easy_viz_cnn.models import SimpleCNNModel
 
 # Define a simple CNN model using our custom layer classes

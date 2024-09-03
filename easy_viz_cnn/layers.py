@@ -1,13 +1,22 @@
+from typing import TypeVar
+
+
+T = TypeVar("T", int, tuple[int, int])
+
+
 class Layer:
     """Base class for all layers in the CNN model."""
 
     def __str__(self) -> str:
         raise NotImplementedError("Subclasses should implement this!")
 
+    def output_shape(self, input_size):
+        raise NotImplementedError("Subclasses should implement this!")
 
-class ConvLayer(Layer):
+
+class Conv1DLayer(Layer):
     """
-    Represents a convolutional layer in a CNN.
+    Represents a 1D convolutional layer in a CNN.
 
     Parameters
     ----------
@@ -15,11 +24,51 @@ class ConvLayer(Layer):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    kernel_size : int | tuple[int, int]
+    kernel_size : int
         Size of the kernel.
-    stride : int | tuple[int, int], optional
+    stride : int, optional
         Stride of the convolution. Default is 1.
-    padding : int | tuple[int, int], optional
+    padding : int, optional
+        Padding of the convolution. Default is 0.
+    """
+
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        stride: int = 1,
+        padding: int = 0,
+    ):
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+
+    def __str__(self) -> str:
+        return f"Conv1D({self.in_channels}, {self.out_channels}, {self.kernel_size}, {self.stride}, {self.padding})"
+
+    def output_shape(self, input_size):
+        output_size = (input_size - self.kernel_size + 2 * self.padding) // self.stride + 1
+        return (output_size, self.out_channels)
+
+
+class Conv2DLayer(Layer):
+    """
+    Represents a 2D convolutional layer in a CNN.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    kernel_size : int or tuple[int, int]
+        Size of the kernel.
+    stride : int or tuple[int, int], optional
+        Stride of the convolution. Default is 1.
+    padding : int or tuple[int, int], optional
         Padding of the convolution. Default is 0.
     """
 
@@ -33,13 +82,33 @@ class ConvLayer(Layer):
     ):
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.kernel_size = kernel_size
-        self.stride = stride
-        self.padding = padding
-        return None
+
+        if isinstance(kernel_size, int):
+            self.kernel_size = (kernel_size, kernel_size)
+        else:
+            self.kernel_size = kernel_size
+
+        if isinstance(stride, int):
+            self.stride = (stride, stride)
+        else:
+            self.stride = stride
+
+        if isinstance(padding, int):
+            self.padding = (padding, padding)
+        else:
+            self.padding = padding
 
     def __str__(self) -> str:
-        return f"Conv({self.in_channels}, {self.out_channels}, {self.kernel_size}, {self.stride}, {self.padding})"
+        return f"Conv2D({self.in_channels}, {self.out_channels}, {self.kernel_size}, {self.stride}, {self.padding})"
+
+    def output_shape(self, input_size):
+        output_height = (input_size[0] - self.kernel_size[0] + 2 * self.padding[0]) // self.stride[
+            0
+        ] + 1
+        output_width = (input_size[1] - self.kernel_size[1] + 2 * self.padding[1]) // self.stride[
+            1
+        ] + 1
+        return (output_height, output_width, self.out_channels)
 
 
 class PoolLayer(Layer):
@@ -69,6 +138,14 @@ class PoolLayer(Layer):
     def __str__(self) -> str:
         return f"{self.pool_type.capitalize()}Pool({self.kernel_size}, {self.stride})"
 
+    def output_shape(self, input_size: tuple[T, ...]) -> tuple[T, ...]:
+        output_size = []
+        for i, size in enumerate(input_size):
+            kernel_size = self.kernel_size[i % len(self.kernel_size)]
+            stride = self.stride[i % len(self.stride)]
+            output_size.append((size - kernel_size) // stride + 1)
+        return tuple(output_size)
+
 
 class FCLayer(Layer):
     """
@@ -88,3 +165,6 @@ class FCLayer(Layer):
 
     def __str__(self) -> str:
         return f"FC({self.in_features}, {self.out_features})"
+
+    def output_shape(self, input_size: int) -> tuple[int, int]:
+        return (1, self.out_features)

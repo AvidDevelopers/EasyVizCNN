@@ -20,6 +20,13 @@ class SimpleCNNModel:
     def __str__(self) -> str:
         return " -> ".join([str(layer) for layer in self.layers])
 
+    def features(self, input_size=(32, 32)):
+        res = [self.layers[0].output_shape(input_size)]
+
+        for layer in self.layers[1:]:
+            res.append(layer.output_shape(res[-1]))
+        return res
+
     def create_figure(
         self,
         title: str = "CNN Architecture",
