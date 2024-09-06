@@ -14,6 +14,19 @@ class Layer:
         raise NotImplementedError("Subclasses should implement this!")
 
 
+class InputLayer(Layer):
+    """Represents an input layer in a CNN."""
+
+    def __init__(self, input_size):
+        self.input_size = input_size
+
+    def __str__(self) -> str:
+        return f"Input({self.input_size})"
+
+    def output_shape(self, *args, **kwargs):
+        return self.input_size
+
+
 class Conv1DLayer(Layer):
     """
     Represents a 1D convolutional layer in a CNN.
@@ -105,8 +118,8 @@ class Conv2DLayer(Layer):
         output_height = (input_size[0] - self.kernel_size[0] + 2 * self.padding[0]) // self.stride[
             0
         ] + 1
-        output_width = (input_size[1] - self.kernel_size[1] + 2 * self.padding[1]) // self.stride[
-            1
+        output_width = (input_size[1] - self.kernel_size[1] + 2 * self.padding[0]) // self.stride[
+            0
         ] + 1
         return (output_height, output_width, self.out_channels)
 
@@ -117,9 +130,9 @@ class PoolLayer(Layer):
 
     Parameters
     ----------
-    kernel_size : int | tuple[int, int]
+    kernel_size : int
         Size of the kernel.
-    stride : int | tuple[int, int], optional
+    stride : int, optional
         Stride of the pooling. Default is the same as the kernel size.
     pool_type : str, optional
         Type of the pooling. Can be "max" or "avg". Default is "max".
@@ -127,8 +140,8 @@ class PoolLayer(Layer):
 
     def __init__(
         self,
-        kernel_size: int | tuple[int, int],
-        stride: int | tuple[int, int] = None,
+        kernel_size: int,
+        stride: int = None,
         pool_type: str = "max",
     ):
         self.kernel_size = kernel_size
@@ -138,13 +151,10 @@ class PoolLayer(Layer):
     def __str__(self) -> str:
         return f"{self.pool_type.capitalize()}Pool({self.kernel_size}, {self.stride})"
 
-    def output_shape(self, input_size: tuple[T, ...]) -> tuple[T, ...]:
-        output_size = []
-        for i, size in enumerate(input_size):
-            kernel_size = self.kernel_size[i % len(self.kernel_size)]
-            stride = self.stride[i % len(self.stride)]
-            output_size.append((size - kernel_size) // stride + 1)
-        return tuple(output_size)
+    def output_shape(self, input_size):
+        output_height = (input_size[0] - self.kernel_size) // self.stride + 1
+        output_width = (input_size[1] - self.kernel_size) // self.stride + 1
+        return (output_height, output_width, input_size[2])
 
 
 class FCLayer(Layer):
