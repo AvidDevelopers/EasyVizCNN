@@ -33,7 +33,7 @@ def draw_conv_layer(
         title += "\n"
     if title != "Input\n":
         vline_x = center[0] - 1 * offset / 2
-        ax.plot([vline_x, vline_x], [0.5, 1], "r")
+        ax.plot([vline_x, vline_x], [0.5, 1], color="#808080")
     width = OneUnitCNN * feature_map_size[0]
     height = OneUnitCNN * feature_map_size[1]
     center[0] += offset + width / 2
@@ -56,7 +56,7 @@ def draw_conv_layer(
                 ax.plot(
                     [center[0] - width / 2, current_center[0] - width / 2],
                     [0.5, 0.5],
-                    "r",
+                    color="#808080",
                     zorder=1,
                 )
         # Calculate the midpoint for text justification
@@ -67,7 +67,7 @@ def draw_conv_layer(
         # Place feature map size at the midpoint of the x-lim area
         ax.text(
             x_mid,
-            -1.0,  # Position the text below the layer at the calculated midpoint
+            -1.5,  # Position the text below the layer at the calculated midpoint
             f"Feature Map\n({feature_map_size[0]}x{feature_map_size[1]}x{feature_map_size[2]})",  # Text showing the size
             ha="center",
             fontsize=8,

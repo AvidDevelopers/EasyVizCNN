@@ -24,7 +24,7 @@ lenet_model = SimpleCNNModel(
 
 x = 0
 
-plt.plot([-1, 7], [0.5, 0.5], "r", zorder=1)
+plt.plot([-1, 8], [0.5, 0.5], color="#808080", zorder=1)
 
 for idx, feature_map in enumerate(lenet_model.features()):
     if idx == 0:
@@ -41,8 +41,8 @@ for idx, feature_map in enumerate(lenet_model.features()):
     )
     print(x, feature_map)
 
-plt.xlim(-1, 8)
-plt.ylim(-0.5, 2)
+# plt.xlim(-1, 8)
+# plt.ylim(-0.5, 2)
 
 # Remove axes
 ax.axis("off")
